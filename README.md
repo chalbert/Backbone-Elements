@@ -22,13 +22,12 @@ Elements are defined in a 'elements' hash consisting of a *name* and a *selector
     
 Later on your view, elements can be accessed in 2 ways:
 
-### Cached jQuery object
 Just prefix the name of the element with the $. 
 
     this.$title.text('My title');
     var val = this.$field.val();
     
-### Using the *$get()* function 
+### Using the *$get()* method 
 For dynamic elements generated after the view initialization.
 
     this.$list.append('li');
