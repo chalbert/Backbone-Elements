@@ -2,6 +2,9 @@
 
 Simplify the way you manage your UI elements within a view.  
 
+**DEPENDENCIES**: [Underscore-Keys](https://github.com/chalbert/Underscore-Keys)
+as an optional dependency for key-event. 
+
 Backbone-Elements helps in 2 main ways: 
 
 * Element manipulation
@@ -50,24 +53,23 @@ as an argument to the *refreshElements()* method.
     
 ##Event handling
 
-Event handling convention based, based on the elements. Remember the traditional event hash? 
+Convention based event handling, based on the elements. Remember the traditional Backbone event hash? 
 
     // Traditional Backbone event hash
     events: {
-      'blur a': 'onBlur',
-      'click a': 'onClick',
-      'mouseover a': 'onOver'     
+      'blur a.awesome-link': 'onBlur',
+      'click a.awesome-link': 'onClick',
+      'mouseover a.awesome-link': 'onOver'     
     }
     
 Now events are consolidaded by element, and the selectors are abstracted.
 
-    // New event hash
-    
+    // New event hash    
     events: {
       link: 'blur click mouseover'
     }
     
-Which will using the convention *elementsName_event*.
+Which will be using the convention *elementName_event*.
     
     link_blur: function(){},
     link_click: function(){},
@@ -88,11 +90,16 @@ throw an error such as "Event's method "title_click" does not exist".
 
 ###Specific key events
 
-This is an helper to add events to a specific key
+Add events to a specific key. Depends on few Underscore utilities grouped as a lightweight plugin:
+[Underscore-Keys](https://github.com/chalbert/Underscore-Keys).
 
     events: {
+      field: 'keypress:enter'
+    },
     
-    }
+    field_keypress_enter: function() {}
+    
+    
 
     
     
