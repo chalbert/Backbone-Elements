@@ -1,7 +1,6 @@
 define([
   'underscore',
-  'libs/vendor/backbone/backbone',
-  'libs/vendor/backbone/backbone_super'
+  'backbone'
 ], function(_, Backbone) {
 
   Backbone.View = Backbone.View.extend({
@@ -25,7 +24,7 @@ define([
 
     // Set cached version of elements jQuery objects
     refreshElements: function(element){
-      var elements = element ? [element] : this.elements;
+      var elements = element || this.elements;
       for (var element in elements) {
         this['$' + element] = $(this.el).find(this.elements[element]);
       }
@@ -156,7 +155,7 @@ define([
     initialize: function(){
       if (this.events) this.events = this.mapEvents(this.events);
       this.refreshElements();
-      this._super('initialize', arguments);
+      if (this._super) this._super('initialize', arguments);
     }
   });
 
