@@ -5,6 +5,13 @@ define([
 ], function(_, Backbone) {
 
   Backbone.View = Backbone.View.extend({
+
+    initialize: function(){
+      if (this.events) this.events = this.mapEvents(this.events);
+      this.refreshElements();
+      this._super('initialize', arguments);
+    },
+
     // Convention based event binding
     mapEvents: function(events){
       var eventStack = {};
@@ -25,7 +32,7 @@ define([
 
     // Set cached version of elements jQuery objects
     refreshElements: function(element){
-      var elements = element ? [element] : this.elements;
+      var elements = element || this.elements;
       for (var element in elements) {
         this['$' + element] = $(this.el).find(this.elements[element]);
       }
@@ -38,11 +45,6 @@ define([
 
       _.each(events, function(event, index){
 
-        if (window.Touch) {
-          if (event === 'click') {
-            event: 'touchstart'
-          }
-        }
         this._ensureEventIsValid(event);
 
         if (this._isSpecificKeyEvent(event)) {
@@ -127,10 +129,7 @@ define([
 
     _isValidEvent: function(event){
       //| > Only key event take options
-      if (this._isEventWithOption(event) && !this._isSpecificKeyEvent(event)) {
-        return false;
-      }
-      return true;
+      return (!this._isEventWithOption(event) || this._isSpecificKeyEvent(event));
     },
 
     _ensureEventIsValid: function(event){
@@ -150,14 +149,6 @@ define([
       return _.isKeyEvent(eventParts[0]) && _.isKey(eventParts[1]);
     }
 
-  });
-
-  return Backbone.View.extend({
-    initialize: function(){
-      if (this.events) this.events = this.mapEvents(this.events);
-      this.refreshElements();
-      this._super('initialize', arguments);
-    }
   });
 
   return Backbone;
