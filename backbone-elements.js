@@ -1,7 +1,6 @@
 define([
   'underscore',
-  'libs/vendor/backbone/backbone',
-  'libs/vendor/backbone/backbone_super'
+  'backbone'
 ], function(_, Backbone) {
 
   Backbone.View = Backbone.View.extend({
