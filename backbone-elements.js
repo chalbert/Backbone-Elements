@@ -3,20 +3,21 @@ define([
   'backbone'
 ], function(_, Backbone) {
 
-  var initialize = Backbone.View.initialize;
-  Backbone.View.prototype.initialize = function(){
-    if (this.events) this.events = this.mapEvents(this.events);
-    this.refreshElements();
-    initialize.apply(this, arguments);
-  }
+  var initialize = Backbone.View.prototype.initialize;
 
   _.extend(Backbone.View.prototype, {
 
+    initialize: function(){
+      if (this.events) this.events = this.mapEvents(this.events);
+      this.refreshElements();
+      initialize.apply(this, arguments);
+    },
+
     // Convention based event binding
-    mapEvents: function(events){
+    mapEvents: function(elements){
       var eventStack = {};
-      _.each(events, function(event, object){
-        _.extend(eventStack, this._formatElementEvents(object, event));
+      _.each(elements, function(events, element){
+        _.extend(eventStack, this._formatElementEvents(element, events));
       }, this);
 
       return eventStack;
@@ -59,7 +60,7 @@ define([
 
     _pushFormattedEvent: function(stack, element, event){
       var selector = this._getElementSelector(element),
-          key = event + (selector === '') ? '' : ' ' + selector;
+          key = event + ((selector === '') ? '' : (' ' + selector));
 
       stack[key] = _getEventMethod(element, event);
       return stack;
@@ -84,7 +85,8 @@ define([
   //|---------|
 
   function _getEventMethod(){
-    return _.toArray(arguments).join('_');
+    // Remove empty then join with underscore. Replace colon of attribute with underscore
+    return _.compact(_.toArray(arguments)).join('_').replace(':', '_');
   }
 
   return Backbone;
