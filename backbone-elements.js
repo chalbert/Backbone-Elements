@@ -1,7 +1,21 @@
-define([
-  'underscore',
-  'backbone'
-], function(_, Backbone) {
+/*!
+ * Backbone-Elements
+ * (Tested with Backbone 0.9.2)
+ *
+ * Backbone-Elements is freely distributable under the MIT license.
+ *
+ * For more details & documentation:
+ * https://github.com/chalbert/Backbone-Elements
+ *
+ */
+
+(function(plugin){
+
+  (typeof define === 'function' && define.amd)
+      ? define(['underscore', 'backbone'], plugin)
+      : plugin(_, Backbone);
+
+})(function (_, Backbone){
 
   var initialize = Backbone.View.prototype.initialize;
 
@@ -91,4 +105,7 @@ define([
 
   return Backbone;
 
+
 });
+
+
