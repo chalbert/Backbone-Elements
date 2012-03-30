@@ -7,9 +7,9 @@ define([
   describe("$get", function () {
 
     beforeEach(function(){
-      $('body').append('<div id="content"/>');
+      $('body').append('<div id="container"><div id="content"></div></div>');
       var view = Backbone.View.extend({
-        el: 'body',
+        el: '#container',
         elements: {
           content: '#content'
         }
@@ -18,8 +18,8 @@ define([
     });
 
     afterEach(function(){
-      $('body').remove('#content');
-      this.view.destroy();
+      $('body #content').remove();
+      this.view.remove();
     });
 
     it("Returns the jQuery object from an element name.", function () {
@@ -27,5 +27,7 @@ define([
     });
 
   });
+
+
 
 });
