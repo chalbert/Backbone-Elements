@@ -1,111 +1,215 @@
-/*!
- * Backbone-Elements
- * (Tested with Backbone 0.9.2)
+/**
+ * |-------------------|
+ * | Backbone-Elements |
+ * |-------------------|
+ *  Backbone-Elements is freely distributable under the MIT license.
  *
- * Backbone-Elements is freely distributable under the MIT license.
+ *  <a href="https://github.com/chalbert/Backbone-Elements">More details & documentation</a>
  *
- * For more details & documentation:
- * https://github.com/chalbert/Backbone-Elements
+ * @author Nicolas Gilbert
  *
+ * @requires _
+ * @requires Backbone
  */
 
-(function(plugin){
+(function(factory){
+  'use strict';
 
-  (typeof define === 'function' && define.amd)
-      ? define(['underscore', 'backbone'], plugin)
-      : plugin(_, Backbone);
+  if (typeof define === 'function' && define.amd) {
+    define(['underscore', 'backbone'], factory);
+  } else {
+    factory(_, Backbone);
+  }
 
 })(function (_, Backbone){
+  'use strict';
+  /**
+   * @borrows Backbone.View#initialize
+   */
+  var initialize = Backbone.View.prototype.initialize,
 
-  var initialize = Backbone.View.prototype.initialize;
+      /**
+       * @lends BackboneElements
+       */
+       BackboneElements = {
 
-  _.extend(Backbone.View.prototype, {
+        /** @constructs*/
+        initialize: function(){
+          this.events = this.mapEvents(this.events);
+          this.refreshElements();
+          initialize.apply(this, arguments);
+        },
 
-    initialize: function(){
-      if (this.events) this.events = this.mapEvents(this.events);
-      this.refreshElements();
-      initialize.apply(this, arguments);
-    },
+        /**
+         * Hash of elements & selectors
+         *
+         * @property {Object} Hash of elements & selectors
+         * @example
+         * elements: {
+         *   content: '#content',
+         *   link: 'a',
+         *   button: '.btn'
+         * }
+         */
 
-    // Convention based event binding
-    mapEvents: function(elements){
-      var eventStack = {};
-      _.each(elements, function(events, element){
-        _.extend(eventStack, this._formatElementEvents(element, events));
-      }, this);
+        elements: {},
 
-      return eventStack;
-    },
+        /**
+         * Generates a standard Backbone.View events hash
+         *
+         * @param {Object} [eventHash] The hash of elements name & events
+         */
+        mapEvents: function(eventHash){
+          if (!eventHash) return;
 
-    // Util to get element jQuery object
-    $get: function (element) {
-      if (!element) return $(this.el);
-      this._ensureElementExist(element);
+          var eventStack = {};
+          _.each(eventHash, function(events, element){
+            _.extend(eventStack, this.formatElementEvents(element, events));
+          }, this);
 
-      return $(this.el).find(this.elements[element]);
-    },
+          return eventStack;
+        },
 
-    // Set cached version of elements jQuery objects
-    refreshElements: function(elements){
-      elements = elements || this.elements;
-      for (var element in elements) {
-        this['$' + element] = $(this.el).find(this.elements[element]);
-      }
-    },
+        /**
+         * Returns the jQuery object for an element
+         *
+         * @param element
+         * @return {jQuery Object}
+         */
+        $get: function (element) {
+          if (!element) return $(this.el);
+          this.ensureElementExist(element);
 
-    isElement: function(element){
-      if (element === '') return true;
-      return (this.elements) && (this.elements[element]);
-    },
+          return $(this.el).find(this.elements[element]);
+        },
 
-    _formatElementEvents: function(element, eventString){
-      this._ensureElementExist(element);
-      var events = eventString.split(' '),
-          eventStack = {};
+        /**
+         * Sets a cached jQuery objects for each element
+         *
+         * @param {Object} [elements] New objects to add
+         * @example
+         * view.refreshElements({content: '#content'})
+         * assert(view.$content === view.$el.find('#content');
+         */
+        refreshElements: function(elements){
+          // Add new elements to existing ones
+          elements = _.extend(this.elements || {}, elements);
 
-      _.each(events, function(event, index){
+          _.each(elements, function(selector, element) {
+            this['$' + element] = $(this.el).find(selector);
+          }, this);
+        },
 
-        this._pushFormattedEvent(eventStack, element, event);
+        /**
+         * Return 'true' if 'element' is an element
+         *
+         * @param {String} element Element name
+         * @returns True if an element of this name exists
+         */
+        isElement: function(element){
+          if (element === '') return true;
+          return (this.elements) && (this.elements[element]);
+        },
 
-      }, this);
+        /**
+         * Format an element-based event into a standard Backbone.View event
+         *
+         * @param {String} element Element name
+         * @param {String} eventString Space-separated list of events
+         * @returns {Object} Hash of events
+         *
+         * @example
+         * events: {
+         *   element: 'click focus'
+         * }
+         *
+         * will be converted to:
+         *
+         * events: {
+         *   'click .my-selector': 'element_click',
+         *   'focus .my-selector': 'element_focus'
+         * }
+         */
 
-      return eventStack;
-    },
+        formatElementEvents: function(element, eventString){
+          this.ensureElementExist(element);
+          var events = eventString.split(' '),
+              eventStack = {};
 
-    _pushFormattedEvent: function(stack, element, event){
-      var selector = this._getElementSelector(element),
-          key = event + ((selector === '') ? '' : (' ' + selector));
+          _.each(events, function(event){
+            var key = this.getEventKey(element, event),
+                method = this.getEventMethod(element, event);
 
-      stack[key] = _getEventMethod(element, event);
-      return stack;
-    },
+            eventStack[key] = method;
 
-    _getElementSelector: function(element){
-      return (element === '')
-          ? ''
-          : this.elements[element];
-    },
+          }, this);
 
-    _ensureElementExist: function(element){
-      if (!this.isElement(element)) {
-        throw "Element '" + element + "' does not exist.";
-      }
-    }
+          return eventStack;
+        },
 
-  });
+        /**
+         *
+         * @returns {String} Either empty for root element, or selector
+         * @param {String} element The element name
+         */
+        getElementSelector: function(element){
+          return (element === '')
+              ? ''
+              : this.elements[element];
+        },
 
-  //|---------|
-  //| HELPERS |
-  //|---------|
+        /**
+         * Ensure the requested element exist
+         *
+         * @throws {Error} If the element doesn't exist
+         * @param {String} element The element name
+         */
+        ensureElementExist: function(element){
+          if (!this.isElement(element)) {
+            throw "Element '" + element + "' does not exist.";
+          }
+        },
 
-  function _getEventMethod(){
-    // Remove empty then join with underscore. Replace colon of attribute with underscore
-    return _.compact(_.toArray(arguments)).join('_').replace(':', '_');
-  }
+        /**
+         * Generates the key for the event hash
+         *
+         * @param {String} element Element's name
+         * @param {String} event Event name
+         */
+        getEventKey: function(element, event){
+          var selector = this.getElementSelector(element),
+              key = event + ((selector === '') ? '' : (' ' + selector));
+          return key;
+        },
+
+        /**
+         * Generates the name of the method
+         *
+         * @param {String} element Element's name
+         * @param {String} event Event name
+         *
+         * @returns {String} The name of the callback method
+         */
+
+        getEventMethod: function(element, event){
+          // Replace event attributes
+          event = event.replace(':', '_');
+
+          // If element is not empty, join to the event's name with underscore
+          return (element ? element + '_' : '') + event;
+        }
+
+      };
+
+  /**
+   * Add BackboneElements to Backbone.View
+   *
+   * @name Backbone.View
+   * @borrows BackboneElements
+   * @lends Backbone.View.prototype
+   */
+  _.extend(Backbone.View.prototype, BackboneElements);
 
   return Backbone;
 
-
 });
-
-
