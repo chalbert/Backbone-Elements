@@ -1,5 +1,7 @@
 # Backbone-Elements
 
+Version: 1.0
+
 Simplify the way you manage your UI elements within a view.  
 
 **DEPENDENCIES**: [Underscore-Keys](https://github.com/chalbert/Underscore-Keys)
