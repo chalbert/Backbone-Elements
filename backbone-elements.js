@@ -7,6 +7,7 @@
  *  <a href="https://github.com/chalbert/Backbone-Elements">More details & documentation</a>
  *
  * @author Nicolas Gilbert
+ * @version 1.0
  *
  * @requires _
  * @requires Backbone
@@ -41,8 +42,6 @@
         },
 
         /**
-         * Hash of elements & selectors
-         *
          * @property {Object} Hash of elements & selectors
          * @example
          * elements: {
