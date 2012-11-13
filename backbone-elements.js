@@ -36,22 +36,24 @@
 
         /** @constructs*/
         initialize: function(){
+
+          this.eventMap = this.events;
+
+          /**
+           * @property {Object} Hash of elements & selectors. Create a new object to preserve prototype.
+           * @example
+           * elements: {
+           *   content: '#content',
+           *   link: 'a',
+           *   button: '.btn'
+           * }
+           */
+          this.elements = _.extend({}, this.elements || {});
+
           this.events = this.mapEvents(this.events);
           this.refreshElements();
           initialize.apply(this, arguments);
         },
-
-        /**
-         * @property {Object} Hash of elements & selectors
-         * @example
-         * elements: {
-         *   content: '#content',
-         *   link: 'a',
-         *   button: '.btn'
-         * }
-         */
-
-        elements: {},
 
         /**
          * Generates a standard Backbone.View events hash
@@ -78,8 +80,8 @@
         $get: function (element) {
           if (!element) return $(this.el);
           this.ensureElementExist(element);
-
-          return $(this.el).find(this.elements[element]);
+          this.refreshElement(element);
+          return this['$' + element];
         },
 
         /**
@@ -97,6 +99,15 @@
           _.each(elements, function(selector, element) {
             this['$' + element] = $(this.el).find(selector);
           }, this);
+        },
+
+        /**
+         * Refresh a single element
+         * @param {Object} [element] The element to refesh
+         */
+        refreshElement: function(element){
+          this.ensureElementExist(element);
+          this['$' + element] = $(this.el).find(this.elements[element]);
         },
 
         /**
