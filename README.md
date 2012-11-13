@@ -1,6 +1,6 @@
 # Backbone-Elements
 
-Version: 1.0
+Version: 1.1
 
 Simplify the way you manage your UI elements within a view.  
 
@@ -101,7 +101,12 @@ Add events to a specific key. Depends on few Underscore utilities grouped as a l
     
     field_keypress_enter: function() {}
     
-    
+##Change log
+
+###1.1
+
+* Added refreshElement method to update single element
+* Bug fix: The 'elements' hash is now cloned so an instance won't update the prototype version 
 
     
     
